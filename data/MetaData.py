@@ -62,7 +62,7 @@ class DataConfig:
 
     def match(self, *args, **kwargs):
         """
-            $.match(cnf1, cnf2, ...) --> find any match for the given cnfs
+            $.match(cnf1, cnf2, ...) --> find any match for the given cnfs, if cnf is a function call the function on self and use the return value as a validation
             $.match(**cnf)           --> check that all the (key: val) in cnf are in $.data
 
             The match method verify that each item of a given dict is also present in the data.
@@ -70,7 +70,9 @@ class DataConfig:
             --> then it checks that (key1 == key2) and (val1 == val2)
         """
         if len(args):
-            return any(self.match(**arg) for arg in args)
+            return any(self.match(**arg) if isinstance(arg, dict) else arg(self) if hasattr(arg, '__call__') else False
+                       for arg in args
+                       )
         else:
             return all(self.data(key) == val for key, val in kwargs.items())
 
