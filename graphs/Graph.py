@@ -34,6 +34,11 @@ class GraphItem(DataConfig, MetaConfig):
         DataConfig.__init__(self, **data)
         MetaConfig.__init__(self)
 
+    @staticmethod
+    def _match(cls, *configs, **config):
+        """Abstract method to call match on a GraphItem"""
+        return lambda item: item.match(*configs, **config)
+
 
 class Node(GraphItem):
     def addOrigin(self, origin, **kwargs):
@@ -45,6 +50,27 @@ class Node(GraphItem):
         """Create a link oriented from self to target in self.graph"""
         assert self.graph.hasNode(target), "can't link nodes between multiple graphs, try using Graph.copyNode"
         return self.graph.setLink(self, target, **kwargs)
+
+    def forkOut(self, *targets, **kwargs):
+        return [self.addTarget(target, **kwargs) for target in targets]
+
+    def forkIn(self, *origins, **kwargs):
+        return [self.addOrigin(origin, **kwargs) for origin in origins]
+
+    def keepOrigins(self, *configs, **config):
+        return self.originLinks.keep(Link._match(*configs, **config)).map(Link.getOrigin)
+
+    def keepTargets(self, *configs, **config):
+        return self.targetLinks.keep(Link._match(*configs, **config)).map(Link.getTarget)
+
+    def isOriginOf(self, link):
+        return self is link.origin
+
+    def isTargetOf(self, link):
+        return self is link.target
+
+    def isVertexOf(self, link):
+        return self.isOriginOf(link) or self.isTargetOf(link)
 
     @property
     def targetLinks(self):
@@ -132,6 +158,21 @@ class Link(GraphItem):
         self.target = target
         DataConfig.__init__(self, **data)
         MetaConfig.__init__(self)
+
+    def getOrigin(self):
+        return self.origin
+
+    def getTarget(self):
+        return self.target
+
+    def isOrigin(self, node):
+        return self.origin is node
+
+    def isTarget(self, node):
+        return self.target is node
+
+    def isVertex(self, node):
+        return self.isOrigin(node) or self.isTarget(node)
 
     def copy(self, newOrigin, newTarget, data=True, meta=True, original='copiedFrom'):
         """
