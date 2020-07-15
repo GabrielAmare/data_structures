@@ -75,28 +75,28 @@ class Node(GraphItem):
     @property
     def targetLinks(self):
         """Return all the links that connect self to its node targets"""
-        return self.graph.links.keep(lambda link: link.origin is self)
+        return self.graph.links.keep(self.isOriginOf)
 
     @property
     def originLinks(self):
         """Return all the links that connect self to its node origins"""
-        return self.graph.links.keep(lambda link: link.target is self)
-    
+        return self.graph.links.keep(self.isTargetOf)
+
     @property
     def links(self):
         """Return all the links of self"""
-        return self.graph.links.keep(lambda link: link.target is self or link.origin is self)
-    
+        return self.graph.links.keep(self.isVertexOf)
+
     @property
     def targets(self):
         """Return all the nodes connected as targets to self"""
-        return self.targetLinks.map(lambda link: link.target)
+        return self.targetLinks.map(Link.getTarget)
 
     @property
     def origins(self):
         """Return all the nodes connected as origins to self"""
-        return self.originLinks.map(lambda link: link.origin)
-    
+        return self.originLinks.map(Link.getOrigin)
+
     def dict_id(self):
         """
             Method that return the id of a node in the graph, used for the $.toDict method
