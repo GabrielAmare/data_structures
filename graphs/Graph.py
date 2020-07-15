@@ -3,23 +3,22 @@ from ..arrays import Array
 
 
 def indent(s: str, indent='  ') -> str:
-    return "\n".join(indent+line for line in s.split('\n'))
+    return "\n".join(indent + line for line in s.split('\n'))
 
 
 def fancyJson(d: (dict, list, tuple, str, int, float, bool, None.__class__)) -> str:
     if isinstance(d, dict):
         if len(list(d.keys())):
-            return "{\n"+indent(",\n".join(f"{repr(key)}: {fancyJson(val)}" for key, val in d.items()))+"\n}"
+            return "{\n" + indent(",\n".join(f"{repr(key)}: {fancyJson(val)}" for key, val in d.items())) + "\n}"
         else:
             return "{}"
     elif isinstance(d, (list, tuple)):
         if len(d):
-            return "[\n"+indent(",\n".join(fancyJson(val) for val in d))+"\n]"
+            return "[\n" + indent(",\n".join(fancyJson(val) for val in d)) + "\n]"
         else:
             return "[]"
     else:
         return repr(d)
-
 
 
 class GraphItem(DataConfig, MetaConfig):
@@ -28,6 +27,7 @@ class GraphItem(DataConfig, MetaConfig):
         it implements both DataConfig and MetaConfig
         and as an item of a graph it stores it's owner graph.
     """
+
     def __init__(self, graph, **data):
         assert isinstance(graph, Graph)
         self.graph = graph
@@ -113,7 +113,7 @@ class Node(GraphItem):
             --> hex(id(self))
         """
         return self.graph.nodes.index(self)
-    
+
     def toDict(self):
         """Implementation of DictInterface.toDict"""
         return {
@@ -306,8 +306,4 @@ if __name__ == '__main__':
 
     print(fancyJson(g.toDict()))
 
-
     help(Graph)
-
-
-
