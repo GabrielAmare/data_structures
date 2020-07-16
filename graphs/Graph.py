@@ -1,3 +1,5 @@
+from graphviz import Digraph
+
 from ..data import DataConfig, MetaConfig
 from ..arrays import Array
 
@@ -292,6 +294,22 @@ class Graph(MetaConfig):
             link.meta(**linkData.get('meta', {}))
 
         return g
+
+    def render(self, filepath, node_text, node_config, link_config,
+               node_uid=lambda node: str(hex(id(node))),
+               link_ignore=lambda link: False,
+               node_ignore=lambda link: False,
+               engine='dot'):
+        dot = Digraph(engine=engine)
+
+        for node in self.nodes:
+            if not node_ignore(node):
+                dot.node(node_uid(node), node_text(node), **node_config(node))
+
+        for link in self.links:
+            if not link_ignore(link) and not node_ignore(link.origin) and not node_ignore(link.target):
+                dot.edge(node_uid(link.origin), node_uid(link.target), **link_config(link))
+        dot.render(filepath, view=True)
 
 
 if __name__ == '__main__':
