@@ -36,8 +36,14 @@ class DirectedAcyclicGraph(Graph):
     def render(self, filepath, node_text, node_config, link_config,
                node_uid=lambda node: str(hex(id(node))),
                link_ignore=lambda link: False,
-               node_ignore=lambda link: False):
-        dot = Digraph()
+               node_ignore=lambda link: False,
+               graph_config=None,
+               engine='dot'):
+        if graph_config is None:
+            graph_config = {}
+        dot = Digraph(engine=engine)
+
+        dot.attr(overlap='false', **graph_config)
 
         for node in self.nodes:
             if not node_ignore(node):
