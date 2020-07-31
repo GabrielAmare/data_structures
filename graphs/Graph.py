@@ -36,7 +36,7 @@ class GraphItem(DataConfig, MetaConfig):
         DataConfig.__init__(self, **data)
         MetaConfig.__init__(self)
 
-    @staticmethod
+    @classmethod
     def _match(cls, *configs, **config):
         """Abstract method to call match on a GraphItem"""
         return lambda item: item.match(*configs, **config)
