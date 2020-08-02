@@ -53,25 +53,32 @@ class Node(GraphItem):
         assert self.graph.hasNode(target), "can't link nodes between multiple graphs, try using Graph.copyNode"
         return self.graph.setLink(self, target, **kwargs)
 
-    def forkOut(self, *targets, **kwargs):
-        return [self.addTarget(target, **kwargs) for target in targets]
+    def forkOut(self, *targets, **config):
+        """Make links from the same ``origin`` and the same ``config`` to multiple ``targets``"""
+        return [self.addTarget(target, **config) for target in targets]
 
-    def forkIn(self, *origins, **kwargs):
-        return [self.addOrigin(origin, **kwargs) for origin in origins]
+    def forkIn(self, *origins, **config):
+        """Make links to the same ``target`` and the same ``config`` from multiple ``origins``"""
+        return [self.addOrigin(origin, **config) for origin in origins]
 
     def keepOrigins(self, *configs, **config):
+        """From a given origin, return only the origin nodes where the connection link matches teh given config(s)"""
         return self.originLinks.keep(Link._match(*configs, **config)).map(Link.getOrigin)
 
     def keepTargets(self, *configs, **config):
+        """From a given origin, return only the target nodes where the connection link matches teh given config(s)"""
         return self.targetLinks.keep(Link._match(*configs, **config)).map(Link.getTarget)
 
     def isOriginOf(self, link):
+        """Return True if the ``ndoe`` is the origin of the given ``link``"""
         return self is link.origin
 
     def isTargetOf(self, link):
+        """Return True if the ``ndoe`` is the target of the given ``link``"""
         return self is link.target
 
     def isVertexOf(self, link):
+        """Return True if the ``ndoe`` is the origin or the target (one of it's vertices) of the given ``link``"""
         return self.isOriginOf(link) or self.isTargetOf(link)
 
     @property
